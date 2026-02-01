@@ -26,15 +26,8 @@
     </div>
 
     <div class="actions">
-      <button id="btnTheme" class="btn btn-ghost">
-        <span class="btn-ico">☾</span>
-        <span class="btn-txt">Mørk</span>
-      </button>
-
-      <button id="btnRefresh" class="btn btn-primary">
-        <span class="btn-ico">↻</span>
-        <span class="btn-txt">Opdater</span>
-      </button>
+      <button id="btnTheme" class="btn btn-ghost">☾</button>
+      <button id="btnRefresh" class="btn btn-primary">↻ Opdater</button>
     </div>
   </header>
 
@@ -43,35 +36,33 @@
     <div class="card">
       <div class="card-title">Seneste opdatering</div>
       <div id="updatedValue" class="card-value">—</div>
-      <div class="card-meta">Tryk på kortet for at kopiere værdien</div>
+      <div class="card-meta">Tryk for at kopiere</div>
     </div>
 
     <div class="card">
       <div class="card-title">Pris (100 g sølv)</div>
       <div id="priceValue" class="card-value">—</div>
-      <div class="card-meta">
-        Pris beregnet ud fra spotpris (USD/oz) og valutakurs
-      </div>
+      <div class="card-meta">Beregnet ud fra spot + kurs</div>
     </div>
   </section>
 
-  <!-- INFO (kun den vi beholder) -->
-  <section class="panel">
-    <div class="panel-row">
-      <div class="panel-label">Data-kilder</div>
-      <div class="panel-val">metals.live · Frankfurter</div>
-    </div>
+  <!-- STATUS LINJE -->
+  <div class="status-bar" id="statusBar">
+    <span id="statusLine">Klar</span>
+    <span class="info-btn">ℹ︎</span>
+  </div>
 
-    <div class="panel-row">
-      <div class="panel-label">Teknisk</div>
-      <div class="panel-val" id="techMeta">—</div>
+  <!-- SKJULT INFOBOX -->
+  <div class="info-drawer" id="infoDrawer">
+    <div class="info-row">
+      <span>Data-kilder</span>
+      <span>metals.live · Frankfurter</span>
     </div>
-
-    <div class="panel-row">
-      <div class="panel-label">Status</div>
-      <div class="panel-val" id="statusLine">Klar</div>
+    <div class="info-row">
+      <span>Teknisk</span>
+      <span id="techMeta">—</span>
     </div>
-  </section>
+  </div>
 
 </main>
 
