@@ -9,75 +9,72 @@
   <link rel="icon" href="favicon.ico" />
   <link rel="apple-touch-icon" href="icon-180.png" />
   <link rel="manifest" href="manifest.json" />
-
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <main class="app">
+<main class="app">
 
-    <!-- TOP -->
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo">Ag</div>
-        <div>
-          <h1>Sølv – 100 g i DKK</h1>
-          <p class="sub">Live spot + USD–DKK</p>
-        </div>
+  <!-- TOP -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">Ag</div>
+      <div>
+        <h1>Sølv – 100 g i DKK</h1>
+        <p class="sub">Live spot + USD–DKK</p>
       </div>
+    </div>
 
-      <div class="actions">
-        <button id="btnTheme" class="btn btn-ghost">
-          <span class="btn-ico">☾</span>
-          <span class="btn-txt">Mørk</span>
-        </button>
+    <div class="actions">
+      <button id="btnTheme" class="btn btn-ghost">
+        <span class="btn-ico">☾</span>
+        <span class="btn-txt">Mørk</span>
+      </button>
 
-        <button id="btnRefresh" class="btn btn-primary">
-          <span class="btn-ico">↻</span>
-          <span class="btn-txt">Opdater</span>
-        </button>
+      <button id="btnRefresh" class="btn btn-primary">
+        <span class="btn-ico">↻</span>
+        <span class="btn-txt">Opdater</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- KORT -->
+  <section class="grid">
+    <div class="card">
+      <div class="card-title">Seneste opdatering</div>
+      <div id="updatedValue" class="card-value">—</div>
+      <div class="card-meta">Tryk på kortet for at kopiere værdien</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Pris (100 g sølv)</div>
+      <div id="priceValue" class="card-value">—</div>
+      <div class="card-meta">
+        Pris beregnet ud fra spotpris (USD/oz) og valutakurs
       </div>
-    </header>
+    </div>
+  </section>
 
-    <!-- KORT -->
-    <section class="grid">
-      <div class="card">
-        <div class="card-title">Seneste opdatering</div>
-        <div id="updatedValue" class="card-value">—</div>
-        <div class="card-meta">Tryk på kortet for at kopiere værdien</div>
-      </div>
+  <!-- INFO (kun den vi beholder) -->
+  <section class="panel">
+    <div class="panel-row">
+      <div class="panel-label">Data-kilder</div>
+      <div class="panel-val">metals.live · Frankfurter</div>
+    </div>
 
-      <div class="card">
-        <div class="card-title">Pris (100 g sølv)</div>
-        <div id="priceValue" class="card-value">—</div>
-        <div class="card-meta">
-          Pris beregnet ud fra spotpris (USD/oz) og valutakurs
-        </div>
-      </div>
-    </section>
+    <div class="panel-row">
+      <div class="panel-label">Teknisk</div>
+      <div class="panel-val" id="techMeta">—</div>
+    </div>
 
-    <!-- INFO -->
-    <section class="panel">
-      <div class="panel-row">
-        <div class="panel-label">Data-kilder</div>
-        <div class="panel-val">
-          metals.live · Frankfurter
-        </div>
-      </div>
+    <div class="panel-row">
+      <div class="panel-label">Status</div>
+      <div class="panel-val" id="statusLine">Klar</div>
+    </div>
+  </section>
 
-      <div class="panel-row">
-        <div class="panel-label">Teknisk</div>
-        <div class="panel-val" id="techMeta">—</div>
-      </div>
+</main>
 
-      <div class="panel-row">
-        <div class="panel-label">Status</div>
-        <div class="panel-val" id="statusLine">Klar</div>
-      </div>
-    </section>
-
-  </main>
-
-  <script type="module" src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
