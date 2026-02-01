@@ -1,71 +1,91 @@
 <!doctype html>
 <html lang="da">
 <head>
+  <!-- AFSNIT 01 – META -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#050611" />
-  <title>Sølv – 100 g i DKK</title>
+  <meta name="theme-color" content="#060814" />
+  <title>Sølvpris i DKK (100 g)</title>
 
+  <!-- AFSNIT 02 – PWA -->
+  <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="favicon.ico" />
   <link rel="apple-touch-icon" href="icon-180.png" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
+
+  <!-- AFSNIT 03 – STYLES -->
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
-<main class="app">
+  <!-- AFSNIT 04 – APP -->
+  <main class="app" role="main" aria-label="Sølvpris app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">Ag</div>
+        <div>
+          <h1>Sølv – 100 g i DKK</h1>
+          <p class="sub">Live spot + USD→DKK</p>
+        </div>
+      </div>
 
-  <!-- TOP -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">Ag</div>
-      <div>
-        <h1>Sølv – 100 g i DKK</h1>
-        <p class="sub">Live spot + USD–DKK</p>
+      <div class="actions">
+        <button id="btnTheme" class="btn btn-ghost" type="button" aria-label="Skift tema">
+          <span class="btn-ico" aria-hidden="true">☾</span>
+          <span class="btn-txt">LM-mode</span>
+        </button>
+
+        <button id="btnRefresh" class="btn btn-primary" type="button" aria-label="Opdater pris">
+          <span class="btn-ico" aria-hidden="true">↻</span>
+          <span class="btn-txt">Opdater</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- Stor card: Seneste opdatering -->
+      <button id="cardUpdated" class="card card-big" type="button" aria-label="Seneste opdatering">
+        <div class="card-title">Seneste opdatering</div>
+        <div id="updatedValue" class="card-value">—</div>
+        <div id="updatedMeta" class="card-meta">Tryk “Opdater” for at hente den nyeste pris</div>
+      </button>
+
+      <!-- Stor card: Pris -->
+      <button id="cardPrice" class="card card-big" type="button" aria-label="Pris for 100 gram sølv i DKK">
+        <div class="card-title">Pris (100 g sølv)</div>
+        <div id="priceValue" class="card-value">—</div>
+        <div id="priceMeta" class="card-meta">Kilde: spotpris (USD/oz) + valutakurs</div>
+      </button>
+    </section>
+
+    <!-- AFSNIT 05 – FLYTTET BOX: statusbar + skjult info -->
+    <div class="statusbar" id="statusBar" role="button" aria-label="Vis teknisk info">
+      <div class="status-left">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="statusLine">Klar.</span>
+      </div>
+      <div class="status-right">
+        <span class="info-ico" aria-hidden="true">i</span>
       </div>
     </div>
 
-    <div class="actions">
-      <button id="btnTheme" class="btn btn-ghost">☾</button>
-      <button id="btnRefresh" class="btn btn-primary">↻ Opdater</button>
-    </div>
-  </header>
+    <section class="drawer" id="infoDrawer" aria-label="Teknisk info (skjult)" aria-hidden="true">
+      <div class="drawer-row">
+        <div class="drawer-label">Data-kilder</div>
+        <div class="drawer-val">
+          <a href="https://api.metals.live/v1/spot" target="_blank" rel="noreferrer">metals.live</a>
+          <span class="sep">·</span>
+          <a href="https://api.frankfurter.dev" target="_blank" rel="noreferrer">Frankfurter</a>
+        </div>
+      </div>
 
-  <!-- KORT -->
-  <section class="grid">
-    <div class="card">
-      <div class="card-title">Seneste opdatering</div>
-      <div id="updatedValue" class="card-value">—</div>
-      <div class="card-meta">Tryk for at kopiere</div>
-    </div>
+      <div class="drawer-row">
+        <div class="drawer-label">Teknisk</div>
+        <div class="drawer-val" id="techMeta">—</div>
+      </div>
+    </section>
+  </main>
 
-    <div class="card">
-      <div class="card-title">Pris (100 g sølv)</div>
-      <div id="priceValue" class="card-value">—</div>
-      <div class="card-meta">Beregnet ud fra spot + kurs</div>
-    </div>
-  </section>
-
-  <!-- STATUS LINJE -->
-  <div class="status-bar" id="statusBar">
-    <span id="statusLine">Klar</span>
-    <span class="info-btn">ℹ︎</span>
-  </div>
-
-  <!-- SKJULT INFOBOX -->
-  <div class="info-drawer" id="infoDrawer">
-    <div class="info-row">
-      <span>Data-kilder</span>
-      <span>metals.live · Frankfurter</span>
-    </div>
-    <div class="info-row">
-      <span>Teknisk</span>
-      <span id="techMeta">—</span>
-    </div>
-  </div>
-
-</main>
-
-<script type="module" src="app.js"></script>
+  <!-- AFSNIT 06 – SCRIPTS -->
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
