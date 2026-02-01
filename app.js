@@ -1,66 +1,44 @@
 import { fetchSilverUsdPerOunce, fetchUsdToDkk } from './api.js';
 
 const el = {
-  btnTheme: document.getElementById('btnTheme'),
-  btnRefresh: document.getElementById('btnRefresh'),
-  updatedValue: document.getElementById('updatedValue'),
-  priceValue: document.getElementById('priceValue'),
-  techMeta: document.getElementById('techMeta'),
-  statusLine: document.getElementById('statusLine'),
+  refresh: document.getElementById('btnRefresh'),
+  theme: document.getElementById('btnTheme'),
+  updated: document.getElementById('updatedValue'),
+  price: document.getElementById('priceValue'),
+  status: document.getElementById('statusLine'),
+  tech: document.getElementById('techMeta'),
+  drawer: document.getElementById('infoDrawer'),
+  statusBar: document.getElementById('statusBar')
 };
 
-let darkMode = true;
+el.statusBar.addEventListener('click', () => {
+  el.drawer.classList.toggle('show');
+});
 
-// =======================
-// INIT
-// =======================
-wireEvents();
-refreshNow();
+el.refresh.addEventListener('click', refresh);
 
-// =======================
-// EVENTS
-// =======================
-function wireEvents() {
-  el.btnTheme.addEventListener('click', toggleTheme);
-  el.btnRefresh.addEventListener('click', refreshNow);
-}
+refresh();
 
-// =======================
-// CORE
-// =======================
-async function refreshNow() {
+async function refresh() {
   try {
-    el.statusLine.textContent = "Opdaterer…";
+    el.status.textContent = "Opdaterer…";
 
     const silver = await fetchSilverUsdPerOunce();
     const fx = await fetchUsdToDkk();
 
-    const priceDKK = (silver / 31.1035) * 100 * fx.rate;
+    const price = (silver / 31.1035) * 100 * fx.rate;
 
-    el.updatedValue.textContent =
-      new Date().toLocaleString('da-DK');
+    el.updated.textContent = new Date().toLocaleString('da-DK');
+    el.price.textContent =
+      price.toLocaleString('da-DK', { minimumFractionDigits: 2 }) + " kr.";
 
-    el.priceValue.textContent =
-      priceDKK.toLocaleString('da-DK', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }) + " kr.";
+    el.tech.textContent =
+      `Silver: ${silver.toFixed(2)} USD · Kurs: ${fx.rate.toFixed(4)}`;
 
-    el.techMeta.textContent =
-      `Silver: ${silver.toFixed(2)} USD/oz · USD→DKK: ${fx.rate.toFixed(4)} (${fx.date})`;
+    el.status.textContent = "Opdateret ✓";
 
-    el.statusLine.textContent = "Opdateret ✓";
-
-  } catch (err) {
-    console.error(err);
-    el.statusLine.textContent = "Kunne ikke hente data. Tjek internet.";
+  } catch (e) {
+    console.error(e);
+    el.status.textContent = "Kunne ikke hente data";
   }
-}
-
-// =======================
-// THEME
-// =======================
-function toggleTheme() {
-  darkMode = !darkMode;
-  document.body.classList.toggle('light', !darkMode);
 }
