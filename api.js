@@ -1,66 +1,46 @@
 // =========================================================
-// AFSNIT 01 – API ENDPOINTS (kun netværk her)
+// AFSNIT 01 – API ENDPOINTS
 // =========================================================
-//
-// metals.live endpoint (gratis, ingen nøgle) bruges i eksempler i open-source plugin:
-// https://api.metals.live/v1/spot  (returnerer bl.a. silver i USD pr. troy ounce)
-//
-// Frankfurter (gratis, ingen nøgle):
-// https://api.frankfurter.dev/v1/latest?base=USD&symbols=DKK
-//
-// OBS: Hvis en API ændrer format, ret kun i DENNE FIL.
 
-const METALS_LIVE_SPOT = 'https://api.metals.live/v1/spot';
-const FX_USD_DKK = 'https://api.frankfurter.dev/v1/latest?base=USD&symbols=DKK';
+// CORS-kompatibel metals API
+const METALS_API =
+  "https://api.metals.dev/v1/latest?api_key=demo&symbols=XAG&currency=USD";
+
+const FX_API =
+  "https://api.frankfurter.dev/v1/latest?base=USD&symbols=DKK";
 
 // =========================================================
-// AFSNIT 02 – HENT SØLVPRIS (USD pr. troy ounce)
+// AFSNIT 02 – HENT SØLVPRIS (USD / troy ounce)
 // =========================================================
-export async function fetchSilverUsdPerOunce(){
-  const res = await fetch(METALS_LIVE_SPOT, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`metals.live fejlede: HTTP ${res.status}`);
+export async function fetchSilverUsdPerOunce() {
+  const res = await fetch(METALS_API, { cache: "no-store" });
+  if (!res.ok) throw new Error("Kunne ikke hente sølvpris");
+
   const data = await res.json();
 
-  // Format fra metals.live: array af arrays, sidste element er timestamp (bruges ikke).
-  // Eksempel i plugin: array_pop($metals_array) før iteration. (xbar plugin)
-  if (!Array.isArray(data) || data.length < 2) throw new Error('Uventet metals.live format');
+  if (!data?.rates?.XAG)
+    throw new Error("Ugyldigt metals API-svar");
 
-  const trimmed = data.slice(0, -1);
-  let silver = null;
+  // XAG = ounce sølv → vi vil have USD/oz
+  const usdPerOunce = 1 / Number(data.rates.XAG);
 
-  for (const entry of trimmed){
-    if (Array.isArray(entry) && entry.length === 2){
-      const [name, price] = entry;
-      if (String(name).toLowerCase() === 'silver'){
-        silver = Number(price);
-        break;
-      }
-    }
-    // fallback hvis formatet er {silver: price}
-    if (entry && typeof entry === 'object' && !Array.isArray(entry)){
-      for (const [k,v] of Object.entries(entry)){
-        if (String(k).toLowerCase() === 'silver'){
-          silver = Number(v);
-          break;
-        }
-      }
-    }
-    if (silver != null) break;
-  }
-
-  if (!(silver > 0)) throw new Error('Kunne ikke finde “silver” i metals.live svar');
-  return silver;
+  return usdPerOunce;
 }
 
 // =========================================================
-// AFSNIT 03 – HENT USD→DKK
+// AFSNIT 03 – USD → DKK
 // =========================================================
-export async function fetchUsdToDkk(){
-  const res = await fetch(FX_USD_DKK, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`Frankfurter fejlede: HTTP ${res.status}`);
+export async function fetchUsdToDkk() {
+  const res = await fetch(FX_API, { cache: "no-store" });
+  if (!res.ok) throw new Error("Kunne ikke hente valutakurs");
+
   const data = await res.json();
-  const dkk = data?.rates?.DKK;
-  const rate = Number(dkk);
-  if (!(rate > 0)) throw new Error('Uventet Frankfurter-format (mangler DKK-rate)');
-  return { rate, date: data?.date ?? null };
+  const rate = Number(data?.rates?.DKK);
+
+  if (!rate) throw new Error("Ugyldig DKK-kurs");
+
+  return {
+    rate,
+    date: data.date
+  };
 }
