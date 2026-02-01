@@ -1,239 +1,152 @@
-/* =========================================================
-   AFSNIT 01 – DESIGN TOKENS (kun layout/udseende her)
-   ========================================================= */
-:root{
-  --radius-xl: 22px;
-  --radius-lg: 18px;
-  --radius-md: 14px;
+:root {
+  --bg: #050611;
+  --fg: #eaf0ff;
+  --panel: rgba(12, 14, 32, 0.85);
+  --stroke: rgba(140, 160, 220, 0.25);
 
-  --shadow-soft: 0 10px 30px rgba(0,0,0,.28);
-  --shadow-neon: 0 0 22px rgba(0,255,255,.25), 0 0 60px rgba(130,90,255,.18);
+  --accent-1: #00e6ff;
+  --accent-2: #7a5cff;
 
-  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+  --green: #5cffb0;
 
-  --gap: 14px;
-  --maxw: 760px;
+  --radius: 22px;
+  --shadow: 0 10px 30px rgba(0,0,0,.45);
+  --glow: 0 0 22px rgba(92,255,176,.35);
 
-  --trans: 180ms ease;
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
 }
 
-/* =========================================================
-   AFSNIT 02 – BASE
-   ========================================================= */
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family:var(--font);
-  background: var(--bg);
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0b1028, #050611);
   color: var(--fg);
-  overflow-x:hidden;
 }
 
-/* =========================================================
-   AFSNIT 03 – APP LAYOUT
-   ========================================================= */
-.app{
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 18px;
-  display:flex;
-  flex-direction:column;
-  gap: var(--gap);
+.app {
+  max-width: 760px;
+  margin: auto;
+  padding: 20px;
 }
 
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 12px;
-  padding: 14px 14px;
-  border-radius: var(--radius-xl);
+/* TOP */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: var(--panel);
-  box-shadow: var(--shadow-soft);
-  position: sticky;
-  top: 12px;
-  z-index: 10;
-  backdrop-filter: blur(8px);
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
-.brand{ display:flex; gap: 12px; align-items:center; }
-.logo{
-  width: 44px; height: 44px;
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.logo {
+  width: 42px;
+  height: 42px;
   border-radius: 14px;
-  display:grid;
-  place-items:center;
+  display: grid;
+  place-items: center;
   font-weight: 800;
-  letter-spacing: .5px;
-  background: var(--logo-bg);
-  color: var(--logo-fg);
-  box-shadow: var(--shadow-neon);
-  border: 1px solid var(--stroke);
+  background: linear-gradient(145deg, #00f0ff, #6a5cff);
+  color: #000;
 }
 
-h1{
-  font-size: 18px;
-  margin:0;
-  line-height: 1.05;
-}
-.sub{
-  margin: 3px 0 0;
+.sub {
   font-size: 12px;
-  opacity:.75;
+  opacity: .75;
 }
 
-.actions{ display:flex; gap: 10px; align-items:center; }
+.actions {
+  display: flex;
+  gap: 10px;
+}
 
-/* =========================================================
-   AFSNIT 04 – BUTTONS
-   ========================================================= */
-.btn{
-  border: 1px solid var(--stroke);
-  background: var(--btn-bg);
-  color: var(--btn-fg);
+/* BUTTONS */
+.btn {
+  border: none;
   border-radius: 14px;
-  padding: 10px 12px;
-  cursor:pointer;
-  transition: transform var(--trans), box-shadow var(--trans), background var(--trans), border-color var(--trans);
-  display:flex;
-  gap: 8px;
-  align-items:center;
-  user-select:none;
-  white-space:nowrap;
-}
-
-.btn .btn-ico{ font-size: 16px; opacity:.9; }
-.btn .btn-txt{ font-weight: 650; font-size: 13px; }
-
-.btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-neon); }
-.btn:active{ transform: translateY(0px); box-shadow: none; }
-
-.btn-primary{
-  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
-  border-color: transparent;
-  color: #061019;
-  box-shadow: var(--shadow-neon);
-}
-
-.btn-ghost{
-  background: transparent;
-}
-
-/* =========================================================
-   AFSNIT 05 – CARDS (store “knapper”)
-   ========================================================= */
-.grid{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: var(--gap);
-}
-
-.card{
-  width: 100%;
-  text-align:left;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--stroke);
-  background: radial-gradient(120% 140% at 10% 10%, rgba(0,255,255,.08), transparent 60%),
-              radial-gradient(100% 130% at 90% 20%, rgba(130,90,255,.10), transparent 55%),
-              var(--panel);
-  box-shadow: var(--shadow-soft);
-  padding: 18px;
+  padding: 10px 14px;
   cursor: pointer;
-  transition: transform var(--trans), box-shadow var(--trans), border-color var(--trans);
-  position: relative;
-  overflow:hidden;
+  font-weight: 600;
 }
 
-.card::after{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  background: radial-gradient(60% 80% at 20% 30%, rgba(0,255,255,.22), transparent 60%),
-              radial-gradient(60% 80% at 85% 35%, rgba(130,90,255,.22), transparent 60%);
-  opacity: .45;
-  pointer-events:none;
-  filter: blur(8px);
+.btn-primary {
+  background: linear-gradient(135deg, #00e6ff, #6a5cff);
+  color: #001018;
+  box-shadow: var(--glow);
 }
 
-.card:hover{
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-soft), var(--shadow-neon);
-  border-color: color-mix(in srgb, var(--stroke), var(--accent-1) 30%);
+.btn-ghost {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--stroke);
 }
 
-.card:active{ transform: translateY(0px); }
+/* CARDS */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
 
-.card-title{
+.card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.card-title {
   font-size: 13px;
   opacity: .8;
-  font-weight: 650;
-  position: relative;
-  z-index: 1;
 }
 
-.card-value{
+.card-value {
   font-size: 38px;
   font-weight: 800;
-  letter-spacing: .2px;
-  margin-top: 10px;
-  position: relative;
-  z-index: 1;
+  margin: 10px 0;
 }
 
-.card-meta{
-  font-size: 12px;
-  opacity: .72;
-  margin-top: 10px;
-  position: relative;
-  z-index: 1;
-}
-
-/* =========================================================
-   AFSNIT 06 – INFO PANEL
-   ========================================================= */
-.panel{
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--stroke);
-  background: var(--panel);
-  box-shadow: var(--shadow-soft);
-  padding: 14px 16px;
-}
-
-.panel-row{
-  display:flex;
-  justify-content:space-between;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--stroke), transparent 45%);
-}
-.panel-row:last-child{ border-bottom:none; }
-
-.panel-label{
-  font-size: 12px;
-  opacity:.7;
-  min-width: 110px;
-}
-.panel-val{
-  font-size: 12px;
-  text-align:right;
-  opacity:.9;
-}
-.panel a{ color: var(--link); text-decoration:none; }
-.panel a:hover{ text-decoration: underline; }
-.sep{ opacity:.5; padding: 0 6px; }
-
-.footer{
-  text-align:center;
+.card-meta {
   font-size: 12px;
   opacity: .7;
-  padding: 8px 0 2px;
 }
 
-/* =========================================================
-   AFSNIT 07 – RESPONSIVE
-   ========================================================= */
-@media (min-width: 680px){
-  .grid{ grid-template-columns: 1fr 1fr; }
-  .card-value{ font-size: 42px; }
-  h1{ font-size: 19px; }
+/* INFO */
+.panel {
+  margin-top: 20px;
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+
+.panel-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.panel-row:last-child {
+  border-bottom: none;
+}
+
+.panel-label {
+  font-size: 12px;
+  opacity: .7;
+}
+
+/* HER ER DEN VIGTIGE ÆNDRING */
+.panel-val {
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 600;
+  text-shadow: 0 0 6px rgba(92,255,176,.4);
 }
