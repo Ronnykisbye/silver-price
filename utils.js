@@ -1,27 +1,25 @@
 // =========================================================
-// AFSNIT 01 – MATH & FORMAT
+// AFSNIT 01 – BEREGNINGER
 // =========================================================
-
-export const TROY_OUNCE_GRAMS = 31.1034768;
-
 export function usdPerOunceToDkkPer100g(usdPerOunce, usdToDkk){
-  const usdPerGram = usdPerOunce / TROY_OUNCE_GRAMS;
-  const usdPer100g = usdPerGram * 100;
-  const dkkPer100g = usdPer100g * usdToDkk;
+  // 1 troy ounce = 31.1034768 g
+  const usdPerGram = usdPerOunce / 31.1034768;
+  const dkkPer100g = usdPerGram * 100 * usdToDkk;
   return dkkPer100g;
 }
 
-export function fmtDkk(amount){
-  return new Intl.NumberFormat('da-DK', {
-    style: 'currency',
-    currency: 'DKK',
-    maximumFractionDigits: 2
-  }).format(amount);
+// =========================================================
+// AFSNIT 02 – FORMAT
+// =========================================================
+export function fmtDkk(n){
+  if (!Number.isFinite(n)) return '—';
+  return n.toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' kr.';
 }
 
-export function fmtDateTime(dt){
-  return new Intl.DateTimeFormat('da-DK', {
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit'
-  }).format(dt);
+export function fmtDateTime(d){
+  try{
+    return new Date(d).toLocaleString('da-DK');
+  }catch(_){
+    return '—';
+  }
 }
