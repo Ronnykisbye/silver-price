@@ -30,32 +30,37 @@ export const THEMES = {
     '--accent-1': '#00C7D4',
     '--accent-2': '#6B4CFF',
 
-    '--btn-bg': 'rgba(255,255,255,.9)',
+    '--btn-bg': 'rgba(255,255,255,.90)',
     '--btn-fg': '#0B1022',
 
     '--logo-bg': 'rgba(0,199,212,.12)',
     '--logo-fg': '#0B1022',
 
-    '--link': '#0B5CF0'
+    '--link': '#0B61FF'
   }
 };
 
 // =========================================================
-// AFSNIT 02 – TEMA HELPERS
+// AFSNIT 02 – TEMA STORAGE
 // =========================================================
-export function applyTheme(themeName){
-  const theme = THEMES[themeName] ?? THEMES.dark;
-  const root = document.documentElement;
-  Object.entries(theme).forEach(([k,v]) => root.style.setProperty(k, v));
-  root.dataset.theme = themeName;
-}
+const KEY = 'silver_theme_v1';
 
 export function getStoredTheme(){
-  const t = localStorage.getItem('theme');
-  if (t === 'light' || t === 'dark') return t;
-  return 'dark';
+  const v = localStorage.getItem(KEY);
+  return (v === 'light' || v === 'dark') ? v : 'dark';
 }
 
-export function storeTheme(t){
-  localStorage.setItem('theme', t);
+export function storeTheme(theme){
+  localStorage.setItem(KEY, theme);
+}
+
+// =========================================================
+// AFSNIT 03 – APPLY THEME
+// =========================================================
+export function applyTheme(theme){
+  const t = THEMES[theme] || THEMES.dark;
+  for (const [k, v] of Object.entries(t)) {
+    document.documentElement.style.setProperty(k, v);
+  }
+  document.documentElement.dataset.theme = theme;
 }
