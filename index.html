@@ -5,20 +5,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#060814" />
-  <title>Sølvpris i DKK (100 g)</title>
+  <title>Sølv – 100 g i DKK</title>
 
   <!-- AFSNIT 02 – PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="favicon.ico" />
-  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./favicon.ico" />
+  <link rel="apple-touch-icon" href="./icon-180.png" />
 
   <!-- AFSNIT 03 – STYLES -->
   <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
-  <!-- AFSNIT 04 – APP -->
   <main class="app" role="main" aria-label="Sølvpris app">
+
+    <!-- AFSNIT 04 – TOPBAR -->
     <header class="topbar">
       <div class="brand">
         <div class="logo" aria-hidden="true">Ag</div>
@@ -31,7 +32,7 @@
       <div class="actions">
         <button id="btnTheme" class="btn btn-ghost" type="button" aria-label="Skift tema">
           <span class="btn-ico" aria-hidden="true">☾</span>
-          <span class="btn-txt">LM-mode</span>
+          <span class="btn-txt">Mørk</span>
         </button>
 
         <button id="btnRefresh" class="btn btn-primary" type="button" aria-label="Opdater pris">
@@ -41,34 +42,34 @@
       </div>
     </header>
 
+    <!-- AFSNIT 05 – KORT -->
     <section class="grid">
-      <!-- Stor card: Seneste opdatering -->
-      <button id="cardUpdated" class="card card-big" type="button" aria-label="Seneste opdatering">
+      <button id="cardUpdated" class="card" type="button" aria-label="Seneste opdatering">
         <div class="card-title">Seneste opdatering</div>
         <div id="updatedValue" class="card-value">—</div>
-        <div id="updatedMeta" class="card-meta">Tryk “Opdater” for at hente den nyeste pris</div>
+        <div id="updatedMeta" class="card-meta">Tryk på kortet for at kopiere værdien.</div>
       </button>
 
-      <!-- Stor card: Pris -->
-      <button id="cardPrice" class="card card-big" type="button" aria-label="Pris for 100 gram sølv i DKK">
+      <button id="cardPrice" class="card" type="button" aria-label="Pris for 100 gram sølv i DKK">
         <div class="card-title">Pris (100 g sølv)</div>
         <div id="priceValue" class="card-value">—</div>
-        <div id="priceMeta" class="card-meta">Kilde: spotpris (USD/oz) + valutakurs</div>
+        <div id="priceMeta" class="card-meta">Pris beregnet fra spot (USD/oz) og valutakurs.</div>
       </button>
     </section>
 
-    <!-- AFSNIT 05 – FLYTTET BOX: statusbar + skjult info -->
+    <!-- AFSNIT 06 – STATUSBAR (i stedet for stor boks) -->
     <div class="statusbar" id="statusBar" role="button" aria-label="Vis teknisk info">
       <div class="status-left">
         <span class="dot" aria-hidden="true"></span>
         <span id="statusLine">Klar.</span>
       </div>
-      <div class="status-right">
-        <span class="info-ico" aria-hidden="true">i</span>
+      <div class="status-right" aria-hidden="true">
+        <span class="info-ico">i</span>
       </div>
     </div>
 
-    <section class="drawer" id="infoDrawer" aria-label="Teknisk info (skjult)" aria-hidden="true">
+    <!-- AFSNIT 07 – SKJULT TECH DRAWER -->
+    <section class="drawer" id="infoDrawer" aria-label="Teknisk info" aria-hidden="true">
       <div class="drawer-row">
         <div class="drawer-label">Data-kilder</div>
         <div class="drawer-val">
@@ -82,10 +83,15 @@
         <div class="drawer-label">Teknisk</div>
         <div class="drawer-val" id="techMeta">—</div>
       </div>
+
+      <div class="drawer-row">
+        <div class="drawer-label">Version</div>
+        <div class="drawer-val" id="versionMeta">—</div>
+      </div>
     </section>
+
   </main>
 
-  <!-- AFSNIT 06 – SCRIPTS -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>
