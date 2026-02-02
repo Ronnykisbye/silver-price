@@ -1,44 +1,71 @@
 // =========================================================
-// AFSNIT 01 – API ENDPOINTS (kun netværk her)
+// AFSNIT 01 – API ENDPOINTS (stabile + CORS)
 // =========================================================
-const METALS_LIVE_SPOT = 'https://api.metals.live/v1/spot';
+//
+// Primær sølvkilde: Gold API (gratis, ingen nøgle, CORS)
+// Docs: https://gold-api.com/docs
+// Pris: https://api.gold-api.com/price/XAG
+//
+// Valuta: Frankfurter (USD -> DKK)
+//
+
+const GOLD_API_SILVER = 'https://api.gold-api.com/price/XAG';
 const FX_USD_DKK = 'https://api.frankfurter.dev/v1/latest?base=USD&symbols=DKK';
 
 // =========================================================
-// AFSNIT 02 – HENT SØLVPRIS (USD / troy ounce)
+// AFSNIT 02 – HJÆLPER: SAFE FETCH (timeout + bedre fejl)
 // =========================================================
-export async function fetchSilverUsdPerOunce(){
-  const res = await fetch(METALS_LIVE_SPOT, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`metals.live fejlede: HTTP ${res.status}`);
+async function fetchJson(url, { timeoutMs = 12000 } = {}) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
 
-  const data = await res.json();
+  try {
+    const res = await fetch(url, {
+      cache: 'no-store',
+      signal: ctrl.signal
+    });
 
-  // metals.live spot endpoint returnerer typisk et array. Vi læser robust:
-  // Mulige nøgler: "silver" eller "XAG" afhængigt af API format.
-  const obj = Array.isArray(data) ? data[0] : data;
+    if (!res.ok) {
+      throw new Error(`${url} fejlede: HTTP ${res.status}`);
+    }
 
-  const candidates = [
-    obj?.silver,
-    obj?.XAG,
-    obj?.xag
-  ].map(Number).filter(v => Number.isFinite(v) && v > 0);
-
-  const usdPerOunce = candidates[0];
-  if (!usdPerOunce) throw new Error('metals.live format ukendt (mangler sølvpris)');
-
-  return usdPerOunce;
+    return await res.json();
+  } catch (err) {
+    // Gør abort-fejl mere læsbar
+    if (err?.name === 'AbortError') {
+      throw new Error(`${url} timeout efter ${timeoutMs} ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 // =========================================================
-// AFSNIT 03 – USD → DKK
+// AFSNIT 03 – HENT SØLVPRIS (USD pr. troy ounce)
 // =========================================================
-export async function fetchUsdToDkk(){
-  const res = await fetch(FX_USD_DKK, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`Frankfurter fejlede: HTTP ${res.status}`);
+export async function fetchSilverUsdPerOunce() {
+  // Gold API returnerer typisk: { "name": "...", "price": 82.34, ... }
+  const data = await fetchJson(GOLD_API_SILVER, { timeoutMs: 12000 });
 
-  const data = await res.json();
+  const p = Number(data?.price);
+  if (!Number.isFinite(p) || p <= 0) {
+    throw new Error('Gold API format ukendt (mangler price)');
+  }
+
+  return p; // USD / oz
+}
+
+// =========================================================
+// AFSNIT 04 – USD → DKK
+// =========================================================
+export async function fetchUsdToDkk() {
+  const data = await fetchJson(FX_USD_DKK, { timeoutMs: 12000 });
+
   const rate = Number(data?.rates?.DKK);
-  if (!(rate > 0)) throw new Error('Ugyldigt Frankfurter-format (mangler DKK-rate)');
+  if (!Number.isFinite(rate) || rate <= 0) {
+    throw new Error('Frankfurter format ukendt (mangler DKK-rate)');
+  }
 
   return { rate, date: data?.date ?? null };
 }
