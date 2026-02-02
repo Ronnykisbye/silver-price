@@ -1,36 +1,36 @@
 // =========================================================
 // AFSNIT 01 – API ENDPOINTS (kun netværk her)
 // =========================================================
-//
-// Sølv spotpris (USD pr. troy ounce) – CORS enabled, ingen nøgle:
-// https://api.gold-api.com/price/XAG
-//
-// USD→DKK – Frankfurter (gratis):
-// https://api.frankfurter.dev/v1/latest?base=USD&symbols=DKK
-//
-// Hvis noget ændrer sig i API’er, ret kun i DENNE FIL.
-
-const SILVER_USD_OZ = 'https://api.gold-api.com/price/XAG';
+const METALS_LIVE_SPOT = 'https://api.metals.live/v1/spot';
 const FX_USD_DKK = 'https://api.frankfurter.dev/v1/latest?base=USD&symbols=DKK';
 
 // =========================================================
-// AFSNIT 02 – HENT SØLVPRIS (USD pr. troy ounce)
+// AFSNIT 02 – HENT SØLVPRIS (USD / troy ounce)
 // =========================================================
 export async function fetchSilverUsdPerOunce(){
-  const res = await fetch(SILVER_USD_OZ, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`gold-api fejlede: HTTP ${res.status}`);
+  const res = await fetch(METALS_LIVE_SPOT, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`metals.live fejlede: HTTP ${res.status}`);
 
   const data = await res.json();
 
-  // Forventet: { "price": 23.45, "currency": "USD", ... }
-  const price = Number(data?.price);
-  if (!(price > 0)) throw new Error('Uventet gold-api format (mangler price)');
+  // metals.live spot endpoint returnerer typisk et array. Vi læser robust:
+  // Mulige nøgler: "silver" eller "XAG" afhængigt af API format.
+  const obj = Array.isArray(data) ? data[0] : data;
 
-  return price;
+  const candidates = [
+    obj?.silver,
+    obj?.XAG,
+    obj?.xag
+  ].map(Number).filter(v => Number.isFinite(v) && v > 0);
+
+  const usdPerOunce = candidates[0];
+  if (!usdPerOunce) throw new Error('metals.live format ukendt (mangler sølvpris)');
+
+  return usdPerOunce;
 }
 
 // =========================================================
-// AFSNIT 03 – HENT USD→DKK
+// AFSNIT 03 – USD → DKK
 // =========================================================
 export async function fetchUsdToDkk(){
   const res = await fetch(FX_USD_DKK, { cache: 'no-store' });
@@ -38,7 +38,7 @@ export async function fetchUsdToDkk(){
 
   const data = await res.json();
   const rate = Number(data?.rates?.DKK);
-  if (!(rate > 0)) throw new Error('Uventet Frankfurter-format (mangler DKK-rate)');
+  if (!(rate > 0)) throw new Error('Ugyldigt Frankfurter-format (mangler DKK-rate)');
 
   return { rate, date: data?.date ?? null };
 }
