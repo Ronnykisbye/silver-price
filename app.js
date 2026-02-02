@@ -21,13 +21,66 @@ const el = {
   statusLine: document.getElementById('statusLine'),
   infoDrawer: document.getElementById('infoDrawer'),
   techMeta: document.getElementById('techMeta'),
+  versionMeta: document.getElementById('versionMeta'),
 
   cardUpdated: document.getElementById('cardUpdated'),
   cardPrice: document.getElementById('cardPrice')
 };
 
 // =========================================================
-// AFSNIT 03 – STATE
+// AFSNIT 03 – VERSION (release styring)
+// =========================================================
+const LS_VERSION_KEY = 'silver_release_version_v1';
+
+async function getRemoteVersion(){
+  const res = await fetch('./version.json', { cache: 'no-store' });
+  const j = await res.json();
+  return String(j?.version || 'unknown');
+}
+
+async function hardResetIfNewVersion(){
+  try{
+    const remote = await getRemoteVersion();
+    const local = localStorage.getItem(LS_VERSION_KEY);
+
+    el.versionMeta.textContent = remote;
+
+    if (local && local !== remote) {
+      // Version ændret -> ryd alt og genindlæs
+      setStatus(`Ny version (${remote})… rydder cache…`);
+
+      // Unregister service workers
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+      }
+
+      // Ryd caches
+      if (window.caches) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+
+      // Ryd kun vores lokale keys (skånsomt)
+      localStorage.removeItem('silver_app_cache_v1');
+      localStorage.setItem(LS_VERSION_KEY, remote);
+
+      // Reload (henter ny HTML/CSS/JS)
+      location.reload();
+      return true;
+    }
+
+    // Første gang: gem version
+    if (!local) localStorage.setItem(LS_VERSION_KEY, remote);
+    return false;
+  } catch (e) {
+    // Hvis version.json ikke kan hentes, så kører vi bare videre.
+    return false;
+  }
+}
+
+// =========================================================
+// AFSNIT 04 – STATE
 // =========================================================
 const state = {
   theme: getStoredTheme(),
@@ -38,16 +91,24 @@ const state = {
 };
 
 // =========================================================
-// AFSNIT 04 – INIT
+// AFSNIT 05 – INIT
 // =========================================================
 applyTheme(state.theme);
 updateThemeButton();
 wireEvents();
+registerServiceWorker();
 hydrateFromCache();
-softAutoRefreshOnce();
+
+// Før vi henter data: tjek om vi skal reset pga ny version
+(async () => {
+  const didReset = await hardResetIfNewVersion();
+  if (!didReset) {
+    softAutoRefreshOnce();
+  }
+})();
 
 // =========================================================
-// AFSNIT 05 – EVENTS
+// AFSNIT 06 – EVENTS
 // =========================================================
 function wireEvents(){
   el.btnTheme.addEventListener('click', () => {
@@ -59,11 +120,9 @@ function wireEvents(){
 
   el.btnRefresh.addEventListener('click', () => refreshNow(true));
 
-  // Klik på cards kopierer
   el.cardPrice.addEventListener('click', () => copyText(el.priceValue.textContent));
   el.cardUpdated.addEventListener('click', () => copyText(el.updatedValue.textContent));
 
-  // Flyttet “boks”: klik på statusbar åbner/lukker drawer
   el.statusBar.addEventListener('click', () => toggleDrawer());
 }
 
@@ -79,7 +138,7 @@ function updateThemeButton(){
 }
 
 // =========================================================
-// AFSNIT 06 – DATAFLOW
+// AFSNIT 07 – DATAFLOW
 // =========================================================
 async function refreshNow(userInitiated){
   setStatus(userInitiated ? 'Henter ny pris…' : 'Opdaterer…');
@@ -111,23 +170,20 @@ async function refreshNow(userInitiated){
 }
 
 function render(dkkPer100g){
-  const updated = state.lastUpdatedLocal ? fmtDateTime(state.lastUpdatedLocal) : '—';
-  el.updatedValue.textContent = updated;
+  el.updatedValue.textContent = state.lastUpdatedLocal ? fmtDateTime(state.lastUpdatedLocal) : '—';
 
   const usd = state.lastSilverUsdPerOunce?.toFixed(2);
   const fx = state.lastUsdDkk?.toFixed(4);
   const fxDate = state.fxDate ? ` (ECB-dato: ${state.fxDate})` : '';
-  el.techMeta.textContent = `Silver: ${usd ?? '—'} USD/oz · USD→DKK: ${fx ?? '—'}${fxDate}`;
 
+  el.techMeta.textContent = `Silver: ${usd ?? '—'} USD/oz · USD→DKK: ${fx ?? '—'}${fxDate}`;
   el.priceValue.textContent = fmtDkk(dkkPer100g);
-  el.priceMeta.textContent = 'Pris for 100 g sølv beregnet fra spot (USD/oz) og valutakurs.';
-  el.updatedMeta.textContent = 'Tryk på kortet for at kopiere værdien.';
 }
 
 // =========================================================
-// AFSNIT 07 – CACHE
+// AFSNIT 08 – CACHE (sidste kendte tal)
 // =========================================================
-const LS_KEY = 'silver_app_cache_v1';
+const LS_CACHE_KEY = 'silver_app_cache_v1';
 
 function persistCache(dkkPer100g){
   const payload = {
@@ -137,12 +193,12 @@ function persistCache(dkkPer100g){
     fxDate: state.fxDate,
     dkkPer100g
   };
-  localStorage.setItem(LS_KEY, JSON.stringify(payload));
+  localStorage.setItem(LS_CACHE_KEY, JSON.stringify(payload));
 }
 
 function hydrateFromCache(){
   try{
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = localStorage.getItem(LS_CACHE_KEY);
     if (!raw) return;
 
     const c = JSON.parse(raw);
@@ -154,18 +210,18 @@ function hydrateFromCache(){
     state.fxDate = c.fxDate ?? null;
 
     render(Number(c.dkkPer100g));
-    setStatus('Viser senest kendte data (cache).');
+    setStatus('Viser senest kendte data.');
   }catch(_){
     // ignore
   }
 }
 
 function softAutoRefreshOnce(){
-  setTimeout(() => refreshNow(false), 350);
+  setTimeout(() => refreshNow(false), 300);
 }
 
 // =========================================================
-// AFSNIT 08 – UI HELPERS
+// AFSNIT 09 – UI HELPERS
 // =========================================================
 function setStatus(txt){ el.statusLine.textContent = txt; }
 
@@ -182,4 +238,12 @@ async function copyText(txt){
   }catch(_){
     // ignore
   }
+}
+
+// =========================================================
+// AFSNIT 10 – SERVICE WORKER REGISTRATION
+// =========================================================
+function registerServiceWorker(){
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
