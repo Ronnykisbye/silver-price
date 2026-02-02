@@ -1,9 +1,14 @@
 // =========================================================
-// AFSNIT 01 – SIMPLE CACHE (PWA) – robust offline shell
+// AFSNIT 01 – SERVICE WORKER (STABIL RELEASE)
 // =========================================================
-const CACHE = 'silver-neon-v2';
+//
+// - Cache-navn er versionsstyret via version.json
+// - Network-first for HTML (undgår “gammel side” på mobil)
+// - SkipWaiting + clientsClaim (opdater tager over hurtigt)
+// - Rydder gamle caches automatisk
 
-// Kun “skal-filer” her (må ikke fejle)
+let CACHE = 'silver-price-unknown';
+
 const CORE = [
   './',
   './index.html',
@@ -12,10 +17,10 @@ const CORE = [
   './api.js',
   './utils.js',
   './colors.js',
-  './manifest.json'
+  './manifest.json',
+  './version.json'
 ];
 
-// “nice-to-have” (må gerne fejle uden at install dør)
 const OPTIONAL = [
   './favicon.ico',
   './icon-32.png',
@@ -24,35 +29,71 @@ const OPTIONAL = [
   './icon-512.png'
 ];
 
+async function getVersionSafe(){
+  try{
+    const res = await fetch('./version.json', { cache: 'no-store' });
+    const j = await res.json();
+    const v = String(j?.version || 'unknown').replace(/[^0-9A-Za-z.\-_]/g, '');
+    return v || 'unknown';
+  }catch(_){
+    return 'unknown';
+  }
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
+    const v = await getVersionSafe();
+    CACHE = `silver-price-${v}`;
+
     const cache = await caches.open(CACHE);
-
-    // CORE skal lykkes
     await cache.addAll(CORE);
-
-    // OPTIONAL må ikke vælte install
     await Promise.allSettled(OPTIONAL.map((u) => cache.add(u)));
+
+    self.skipWaiting();
   })());
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k))))
-    )
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k))));
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+  const url = new URL(req.url);
 
-  // API-calls skal i netværk (altid frisk)
-  if (req.url.includes('api.gold-api.com') || req.url.includes('api.frankfurter.dev')){
+  // API skal altid på net (frisk data)
+  if (url.hostname.includes('api.metals.live') || url.hostname.includes('api.frankfurter.dev')) {
     return;
   }
 
-  event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req))
-  );
+  // HTML: network-first
+  if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
+    event.respondWith((async () => {
+      try{
+        const fresh = await fetch(req);
+        const cache = await caches.open(CACHE);
+        cache.put(req, fresh.clone());
+        return fresh;
+      }catch(_){
+        const cached = await caches.match(req);
+        return cached || caches.match('./index.html');
+      }
+    })());
+    return;
+  }
+
+  // Assets: cache-first
+  event.respondWith((async () => {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+
+    const fresh = await fetch(req);
+    const cache = await caches.open(CACHE);
+    cache.put(req, fresh.clone());
+    return fresh;
+  })());
 });
